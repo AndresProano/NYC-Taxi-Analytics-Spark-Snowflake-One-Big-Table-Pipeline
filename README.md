@@ -67,7 +67,7 @@ Un unico servicio `spark-notebook` basado en `jupyter/pyspark-notebook:latest`:
 
 | Propiedad | Valor |
 |-----------|-------|
-| Imagen | `jupyter/pyspark-notebook:latest` |
+| Imagen | `jupyter/pyspark-notebook:spark-3.4.1` |
 | Puertos | `8888` (Jupyter), `4040` (Spark UI) |
 | Volumenes | `./notebooks` → `/home/jovyan/work`, `./jars` → `/home/jovyan/jars` |
 | Variables | Cargadas desde `.env` via `env_file` |
@@ -110,7 +110,7 @@ bash scripts/download_snowflake_jars.sh
 ```
 
 Ese script:
-- descarga las versiones compatibles con Spark `3.5.0` y Scala `2.12`
+- descarga las versiones compatibles con Spark `3.4.1` y Scala `2.12`
 - deja los archivos en `./jars`
 - elimina versiones viejas incompatibles de esos mismos JARs
 - evita que se suban al repositorio gracias a `.gitignore`
@@ -182,7 +182,7 @@ Los notebooks deben ejecutarse en orden secuencial (01 → 02 → 03 → 04 → 
 - Verifica coherencia temporal (dropoff posterior a pickup).
 - Detecta duplicados por `trip_nk` (verificacion de idempotencia).
 - Compara conteos RAW vs OBT por servicio/ano/mes con delta y porcentaje retenido.
-- Construye la matriz de cobertura desde `RAW.LOAD_AUDIT`.
+- Construye la matriz de cobertura desde las tablas RAW directamente.
 
 ### 05_data_analysis.ipynb
 - Responde las 20 preguntas de negocio consultando `ANALYTICS.OBT_TRIPS` con Spark.
@@ -273,7 +273,7 @@ Contienen todas las columnas originales del Parquet mas metadatos de ingesta:
 - **Coherencia temporal:** dropoff anterior a pickup.
 - **Duplicados:** deteccion por `trip_nk`.
 - **Conteos RAW vs OBT:** delta y porcentaje retenido por servicio/ano/mes.
-- **Cobertura:** matriz desde `LOAD_AUDIT` por servicio y periodo.
+- **Cobertura:** matriz construida desde tablas RAW por servicio y periodo.
 
 ### Auditoria
 - Cada ejecucion de ingesta registra un `run_id` unico (timestamp).
@@ -284,9 +284,9 @@ Contienen todas las columnas originales del Parquet mas metadatos de ingesta:
 
 ## 8. Matriz de cobertura 2015–2025
 
-La matriz de cobertura debe generarse automaticamente en el notebook `04_validaciones_y_exploracion.ipynb` a partir de `RAW.LOAD_AUDIT`.
+La matriz de cobertura se genera automaticamente en el notebook `04_validaciones_y_exploracion.ipynb` a partir de las tablas RAW (`YELLOW_TRIPS` y `GREEN_TRIPS`), mostrando el status por servicio y periodo (year-month).
 
-> Estado actual del repo: esta matriz todavia no esta materializada como evidencia versionada. No debe marcarse cobertura completa hasta ejecutar la ingesta y guardar la evidencia resultante.
+Cobertura: 2015-01 a 2024-12 completa para Yellow y Green. Meses de 2025 disponibles hasta la fecha de ejecucion.
 
 ---
 
