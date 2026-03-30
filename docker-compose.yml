@@ -1,0 +1,15 @@
+services:
+  spark-notebook:
+    image: jupyter/pyspark-notebook:latest
+    container_name: spark-notebook
+    ports:
+      - "8888:8888"
+      - "4040:4040"
+    env_file:
+      - .env
+    environment:
+      - SPARK_LOCAL_IP=0.0.0.0
+      - PYSPARK_PYTHON=python
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./jars:/home/jovyan/jars
