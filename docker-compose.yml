@@ -10,6 +10,9 @@ services:
     environment:
       - SPARK_LOCAL_IP=0.0.0.0
       - PYSPARK_PYTHON=python
+      # Descarga automatica del conector Spark-Snowflake + JDBC al iniciar la sesion de Spark.
+      # Las versiones deben ser compatibles con la version de Spark de la imagen.
+      - PYSPARK_SUBMIT_ARGS=--packages net.snowflake:spark-snowflake_2.12:2.15.0-spark_3.4,net.snowflake:snowflake-jdbc:3.14.5 pyspark-shell
     volumes:
       - ./notebooks:/home/jovyan/work
       - ./jars:/home/jovyan/jars
