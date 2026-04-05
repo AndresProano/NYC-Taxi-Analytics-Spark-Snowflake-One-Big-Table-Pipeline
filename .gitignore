@@ -1,6 +1,7 @@
 .env
 .DS_Store
-.ipynb_checkpoints/
 __pycache__/
-*.pyc
-.claude/
+notebooks/__pycache__/
+notebooks/.ipynb_checkpoints/
+jars/*.jar
+!jars/.gitkeep
