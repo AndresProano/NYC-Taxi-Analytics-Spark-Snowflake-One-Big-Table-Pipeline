@@ -71,6 +71,7 @@ Un unico servicio `spark-notebook` basado en `jupyter/pyspark-notebook:latest`:
 | Puertos | `8888` (Jupyter), `4040` (Spark UI) |
 | Volumenes | `./notebooks` → `/home/jovyan/work`, `./jars` → `/home/jovyan/jars` |
 | Variables | Cargadas desde `.env` via `env_file` |
+| Autenticacion Jupyter | Deshabilitada para entorno local (`http://localhost:8888`) |
 
 ### Levantar el ambiente
 
@@ -79,18 +80,40 @@ Un unico servicio `spark-notebook` basado en `jupyter/pyspark-notebook:latest`:
 cp .env.example .env
 # Editar .env con las credenciales de Snowflake
 
-# 2. Levantar el contenedor
+# 2. Descargar dependencias JVM de Snowflake
+bash scripts/download_snowflake_jars.sh
+
+# 3. Levantar el contenedor
 docker compose up -d
 
-# 3. Ver el token de Jupyter
+# 4. Ver logs del servicio
 docker compose logs spark-notebook
 
-# 4. Abrir Jupyter en el navegador
-# http://localhost:8888/?token=<TOKEN>
+# 5. Abrir Jupyter en el navegador
+# http://localhost:8888
 
-# 5. Abrir Spark UI (cuando un notebook esta corriendo)
+# 6. Abrir Spark UI (cuando un notebook esta corriendo)
 # http://localhost:4040
 ```
+
+### Dependencias JVM de Snowflake
+
+Spark necesita librerias Java/Scala para poder ejecutar `format("snowflake")`. Estas dependencias **no se instalan con `pip`** y **no se versionan en GitHub**.
+
+- `spark-snowflake_2.12-3.1.8.jar`: conector Spark ↔ Snowflake
+- `snowflake-jdbc-3.28.0.jar`: driver JDBC requerido por el conector
+
+Por reproducibilidad, el repo incluye el script:
+
+```bash
+bash scripts/download_snowflake_jars.sh
+```
+
+Ese script:
+- descarga las versiones compatibles con Spark `3.5.0` y Scala `2.12`
+- deja los archivos en `./jars`
+- elimina versiones viejas incompatibles de esos mismos JARs
+- evita que se suban al repositorio gracias a `.gitignore`
 
 ---
 
@@ -106,6 +129,7 @@ Definidas en `.env` (credenciales reales) y `.env.example` (plantilla sin secret
 | `SF_USER` | Usuario de Snowflake |
 | `SF_PASSWORD` | Contrasena de Snowflake |
 | `SF_RAW_SCHEMA` | Esquema para aterrizaje raw (default: `RAW`) |
+| `SF_CURATED_SCHEMA` | Esquema intermedio de staging para enriquecimiento/unificacion (default: `CURATED`) |
 | `SF_ANALYTICS_SCHEMA` | Esquema para la OBT (default: `ANALYTICS`) |
 | `SF_WAREHOUSE` | Warehouse de computo |
 | `SF_ROLE` | Rol de acceso |
@@ -275,13 +299,15 @@ La matriz de cobertura debe generarse automaticamente en el notebook `04_validac
 ├── .env                        # Variables con credenciales (no versionado)
 ├── README.md                   # Este archivo
 ├── DM-PSet-3.pdf               # Enunciado del proyecto
+├── scripts/
+│   └── download_snowflake_jars.sh
 ├── notebooks/
 │   ├── 01_ingesta_parquet_raw.ipynb
 │   ├── 02_enriquecimiento_y_unificacion.ipynb
 │   ├── 03_construccion_obt.ipynb
 │   ├── 04_validaciones_y_exploracion.ipynb
 │   └── 05_data_analysis.ipynb
-├── jars/                       # JARs para conectores (Snowflake JDBC)
+├── jars/                       # Directorio local para JARs; no se versionan
 └── evidence/                   # Capturas de ejecucion
 ```
 
@@ -309,4 +335,5 @@ La matriz de cobertura debe generarse automaticamente en el notebook `04_validac
 | Parquet 404/403 | El mes no esta disponible en TLC; queda registrado como `Missing` en LOAD_AUDIT |
 | Spark out of memory | Reducir el rango de anos/meses en las variables de ambiente |
 | Puerto 8888 ocupado | Cambiar el mapeo en `docker-compose.yml` (e.g., `8889:8888`) |
-| JARs no encontrados | Colocar los JARs de Snowflake JDBC y Spark connector en `./jars/`; el contenedor expone `/home/jovyan/jars` via `SPARK_EXTRA_CLASSPATH` |
+| JARs no encontrados | Ejecutar `bash scripts/download_snowflake_jars.sh` y reiniciar el contenedor |
+| Jupyter pide token | El compose ya lo deshabilita para entorno local; recrear el servicio con `docker compose up -d --force-recreate` |

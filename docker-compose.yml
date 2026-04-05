@@ -2,6 +2,10 @@ services:
   spark-notebook:
     image: jupyter/pyspark-notebook:latest
     container_name: spark-notebook
+    command:
+      - start-notebook.py
+      - --ServerApp.token=
+      - --ServerApp.password=
     ports:
       - "8888:8888"
       - "4040:4040"

@@ -1,1 +1,7 @@
 .env
+.DS_Store
+__pycache__/
+notebooks/__pycache__/
+notebooks/.ipynb_checkpoints/
+jars/*.jar
+!jars/.gitkeep
