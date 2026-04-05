@@ -9,7 +9,7 @@
 | Andres Proano | 00326003 |
 | Julian Leon | 00329141 |
 | Benjamin Vaca | |
-| Mauricio Mantilla | |
+| Mauricio Mantilla | 00328185 |
 | Pablo Alvarado | 00344965 |
 
 ---
