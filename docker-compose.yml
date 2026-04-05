@@ -1,6 +1,6 @@
 services:
   spark-notebook:
-    image: jupyter/pyspark-notebook:latest
+    image: jupyter/pyspark-notebook:spark-3.4.1
     container_name: spark-notebook
     command:
       - start-notebook.py
