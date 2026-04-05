@@ -10,6 +10,8 @@ services:
     environment:
       - SPARK_LOCAL_IP=0.0.0.0
       - PYSPARK_PYTHON=python
+      - SPARK_EXTRA_CLASSPATH=/home/jovyan/jars/*
     volumes:
       - ./notebooks:/home/jovyan/work
       - ./jars:/home/jovyan/jars
+      - ./evidence:/home/jovyan/evidence

@@ -10,7 +10,7 @@
 | Julian Leon | |
 | Benjamin Vaca | |
 | Mauricio Mantilla | |
-| Pablo Alvarado | |
+| Pablo Alvarado | 00344965 |
 
 ---
 
@@ -105,8 +105,8 @@ Definidas en `.env` (credenciales reales) y `.env.example` (plantilla sin secret
 | `SF_DATABASE` | Base de datos destino |
 | `SF_USER` | Usuario de Snowflake |
 | `SF_PASSWORD` | Contrasena de Snowflake |
-| `SF_RAW_SCHEMA` | Esquema para aterrizaje raw (default: `raw`) |
-| `SF_ANALYTICS_SCHEMA` | Esquema para la OBT (default: `analytics`) |
+| `SF_RAW_SCHEMA` | Esquema para aterrizaje raw (default: `RAW`) |
+| `SF_ANALYTICS_SCHEMA` | Esquema para la OBT (default: `ANALYTICS`) |
 | `SF_WAREHOUSE` | Warehouse de computo |
 | `SF_ROLE` | Rol de acceso |
 | `SERVICES` | Tipos de taxi a procesar (`yellow,green`) |
@@ -143,13 +143,14 @@ Los notebooks deben ejecutarse en orden secuencial (01 → 02 → 03 → 04 → 
   - `DIM_PAYMENT_TYPE`: Credit card, Cash, No charge, Dispute, Unknown, Voided.
   - `DIM_TRIP_TYPE`: Street-hail, Dispatch (solo Green).
   - `DIM_STORE_AND_FWD`: Stored and forwarded / Not a stored trip.
-- Unifica Yellow y Green en `CURATED.FCT_TRIPS_ENRICHED`.
+- Unifica Yellow y Green en `CURATED.FCT_TRIPS_ENRICHED` como capa intermedia de staging.
 
 ### 03_construccion_obt.ipynb
 - Lee `CURATED.FCT_TRIPS_ENRICHED`.
 - Aplica filtros de calidad minima (trip_nk no nulo, duracion > 0, timestamps no nulos).
 - Construye features derivadas (ver seccion 6).
 - Publica `ANALYTICS.OBT_TRIPS` (tabla principal) y `ANALYTICS.OBT_TRIPS_MONTHLY` (agregado mensual).
+- Nota: el entregable obligatorio del PDF es `analytics.obt_trips`; `OBT_TRIPS_MONTHLY` es un extra opcional.
 
 ### 04_validaciones_y_exploracion.ipynb
 - Valida nulos en columnas esenciales.
@@ -193,9 +194,9 @@ Contienen todas las columnas originales del Parquet mas metadatos de ingesta:
 | `event_timestamp` | Momento de la carga |
 | `notes` | Detalle de errores (si aplica) |
 
-### 6.2 Esquema CURATED (enriquecido)
+### 6.2 Capa intermedia CURATED (staging interno)
 
-**Tabla principal:** `FCT_TRIPS_ENRICHED` — Yellow y Green unificados con zonas y catalogos resueltos.
+**Tabla principal:** `FCT_TRIPS_ENRICHED` — Yellow y Green unificados con zonas y catalogos resueltos. Esta capa no reemplaza el requerimiento formal del PDF; funciona como staging previo a `ANALYTICS.OBT_TRIPS`.
 
 **Dimensiones:** `DIM_TAXI_ZONES`, `DIM_VENDOR`, `DIM_RATE_CODE`, `DIM_PAYMENT_TYPE`, `DIM_TRIP_TYPE`, `DIM_STORE_AND_FWD`.
 
@@ -259,23 +260,9 @@ Contienen todas las columnas originales del Parquet mas metadatos de ingesta:
 
 ## 8. Matriz de cobertura 2015–2025
 
-La matriz completa se genera automaticamente en el notebook `04_validaciones_y_exploracion.ipynb` a partir de `RAW.LOAD_AUDIT`. Los archivos Parquet de meses futuros o no publicados por TLC se documentan como `Missing`.
+La matriz de cobertura debe generarse automaticamente en el notebook `04_validaciones_y_exploracion.ipynb` a partir de `RAW.LOAD_AUDIT`.
 
-| Ano | Yellow | Green | Notas |
-|-----|--------|-------|-------|
-| 2015 | Ene–Dic | Ene–Dic | Cobertura completa |
-| 2016 | Ene–Dic | Ene–Dic | Cobertura completa |
-| 2017 | Ene–Dic | Ene–Dic | Cobertura completa |
-| 2018 | Ene–Dic | Ene–Dic | Cobertura completa |
-| 2019 | Ene–Dic | Ene–Dic | Cobertura completa |
-| 2020 | Ene–Dic | Ene–Dic | Cobertura completa |
-| 2021 | Ene–Dic | Ene–Dic | Cobertura completa |
-| 2022 | Ene–Dic | Ene–Dic | Cobertura completa |
-| 2023 | Ene–Dic | Ene–Dic | Cobertura completa |
-| 2024 | Ene–Dic | Ene–Dic | Cobertura completa |
-| 2025 | Parcial | Parcial | Meses futuros marcados como Missing |
-
-> Nota: la cobertura real depende de la disponibilidad de archivos en el CDN de NYC TLC al momento de la ingesta. Consultar la matriz generada en notebook 04 para el detalle exacto.
+> Estado actual del repo: esta matriz todavia no esta materializada como evidencia versionada. No debe marcarse cobertura completa hasta ejecutar la ingesta y guardar la evidencia resultante.
 
 ---
 
@@ -302,14 +289,14 @@ La matriz completa se genera automaticamente en el notebook `04_validaciones_y_e
 
 ## 10. Checklist de aceptacion
 
-- [x] Docker Compose levanta Spark y Jupyter Notebook.
-- [x] Todas las credenciales/parametros provienen de variables de ambiente (`.env`).
-- [x] Cobertura 2015–2025 (Yellow/Green) cargada en `raw` con matriz y conteos por lote.
-- [x] `analytics.obt_trips` creada con columnas minimas, derivadas y metadatos.
-- [x] Idempotencia verificada reingestando al menos un mes.
-- [x] Validaciones basicas documentadas (nulos, rangos, coherencia).
-- [x] 20 preguntas respondidas usando la OBT.
-- [x] README claro: pasos, variables, esquema, decisiones, troubleshooting.
+- [ ] Docker Compose levanta Spark y Jupyter Notebook.
+- [ ] Todas las credenciales/parametros provienen de variables de ambiente (`.env`).
+- [ ] Cobertura 2015–2025 (Yellow/Green) cargada en `raw` con matriz y conteos por lote.
+- [ ] `analytics.obt_trips` creada con columnas minimas, derivadas y metadatos.
+- [ ] Idempotencia verificada reingestando al menos un mes.
+- [ ] Validaciones basicas documentadas (nulos, rangos, coherencia).
+- [ ] 20 preguntas respondidas usando la OBT.
+- [ ] README claro: pasos, variables, esquema, decisiones, troubleshooting.
 
 ---
 
@@ -322,4 +309,4 @@ La matriz completa se genera automaticamente en el notebook `04_validaciones_y_e
 | Parquet 404/403 | El mes no esta disponible en TLC; queda registrado como `Missing` en LOAD_AUDIT |
 | Spark out of memory | Reducir el rango de anos/meses en las variables de ambiente |
 | Puerto 8888 ocupado | Cambiar el mapeo en `docker-compose.yml` (e.g., `8889:8888`) |
-| JARs no encontrados | Colocar los JARs de Snowflake JDBC y Spark connector en `./jars/` |
+| JARs no encontrados | Colocar los JARs de Snowflake JDBC y Spark connector en `./jars/`; el contenedor expone `/home/jovyan/jars` via `SPARK_EXTRA_CLASSPATH` |
