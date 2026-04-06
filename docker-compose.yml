@@ -14,10 +14,10 @@ services:
     environment:
       - SPARK_LOCAL_IP=0.0.0.0
       - PYSPARK_PYTHON=python
+      - SPARK_JARS_DIR=/home/jovyan/jars
       - SPARK_EXTRA_CLASSPATH=/home/jovyan/jars/*
       - PYSPARK_SUBMIT_ARGS=--jars /home/jovyan/jars/spark-snowflake_2.12-3.1.8.jar,/home/jovyan/jars/snowflake-jdbc-3.28.0.jar pyspark-shell
     volumes:
       - ./notebooks:/home/jovyan/work
       - ./jars:/home/jovyan/jars
       - ./evidence:/home/jovyan/evidence
-
