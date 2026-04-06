@@ -20,3 +20,4 @@ services:
       - ./notebooks:/home/jovyan/work
       - ./jars:/home/jovyan/jars
       - ./evidence:/home/jovyan/evidence
+

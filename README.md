@@ -337,3 +337,4 @@ Cobertura: 2015-01 a 2024-12 completa para Yellow y Green. Meses de 2025 disponi
 | Puerto 8888 ocupado | Cambiar el mapeo en `docker-compose.yml` (e.g., `8889:8888`) |
 | JARs no encontrados | Ejecutar `bash scripts/download_snowflake_jars.sh` y reiniciar el contenedor |
 | Jupyter pide token | El compose ya lo deshabilita para entorno local; recrear el servicio con `docker compose up -d --force-recreate` |
+
